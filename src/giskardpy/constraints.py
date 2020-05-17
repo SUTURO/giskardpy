@@ -955,3 +955,117 @@ def add_debug_constraint(d, key, expr):
                             upper=expr,
                             weight=0,
                             expression=1)
+
+
+class OpenDoorConstraint(Constraint):
+    rotation_axis_point = u'rotation_axis_point'
+    angle = u'angle'
+    weight = u'weight'
+    start_point = u'start_point'
+    radius = u'radius'
+    goal_point = u'goal_point'
+    axis = u'axis'
+
+    def __init__(self, god_map, rotation_axis_point, tip=None, root=None, angle=None, weight=HIGH_WEIGHT):
+
+        super(OpenDoorConstraint, self).__init__(god_map)
+
+        if root is None:
+            self.root = self.get_robot().get_root()
+        else:
+            self.root = root
+
+        if tip is None:
+            self.tip = u'hand_palm_link'
+        else:
+            self.tip = tip
+
+        if angle is None:
+            self.angle = 90
+        else:
+            self.angle = angle
+
+        rotation_axis_point = self.parse_and_transform_PointStamped(rotation_axis_point, u'map')
+        start_point = tf_wrapper.lookup_point(u'map', tip)
+        rotation_axis_point.point.z = start_point.point.z
+        radius = math.sqrt((start_point.point.x - rotation_axis_point.point.x) ** 2 + (start_point.point.y - rotation_axis_point.point.y) ** 2)
+        goal_point = start_point
+        angle = angle * (3.14159/180)
+        # positive angle = clockwise rotation
+        goal_point.point.x = math.cos(angle) * (start_point.point.x - rotation_axis_point.point.x) - math.sin(angle) * (start_point.point.y - rotation_axis_point.point.y) + rotation_axis_point.point.x
+        goal_point.point.y = math.sin(angle) * (start_point.point.x - rotation_axis_point.point.x) + math.cos(angle) * (start_point.point.y - rotation_axis_point.point.y) + rotation_axis_point.point.y
+        axis = Vector3Stamped()
+        axis.header.frame_id = self.tip
+        axis.vector.y = 1 #change axis x,y,z +/- to open different types of doors
+
+        params = {self.rotation_axis_point: rotation_axis_point,
+                  self.angle: angle,
+                  self.start_point: start_point,
+                  self.radius: radius,
+                  self.goal_point: goal_point,
+                  self.axis: axis,
+                  self.weight: weight}
+        self.save_params_on_god_map(params)
+    
+
+    def make_constraints(self):
+        weight = self.get_input_float(self.weight)
+        rotation_axis_point = self.get_input_PointStamped(self.rotation_axis_point)
+        start_point = self.get_input_PointStamped(self.start_point)
+        radius = self.get_input_float(self.radius)
+        goal_point = self.get_input_PointStamped(self.goal_point)
+        axis = self.get_input_Vector3Stamped(self.axis)
+
+        root_T_tip = self.get_fk(self.root, self.tip)
+        current_position = w.position_of(root_T_tip)
+
+        current_distance = math.sqrt((current_position[0] - rotation_axis_point.point.x) ** 2 + (current_position[1] - rotation_axis_point.point.y) ** 2)
+        distance_delta = radius - current_distance
+        z_delta = start_point.point.z - current_position[2]
+        goal_delta_x = goal_point.point.x - current_position[0]
+        goal_delta_y = goal_point.point.y - current_position[1]
+        goal_axis = rotation_axis_point - current_position
+        goal_axis /= w.norm(goal_axis)
+        current_axis = w.dot(root_T_tip, axis)
+        axis_delta = goal_axis - current_axis
+        
+
+        self.add_constraint(str(self) + u'distance_xy', 
+                            lower= distance_delta,
+                            upper= distance_delta,
+                            weight= weight,
+                            expression= current_distance)
+        self.add_constraint(str(self) + u'maintain_z', 
+                            lower= z_delta,
+                            upper= z_delta,
+                            weight= weight,
+                            expression= current_position[2])
+        self.add_constraint(str(self) + u'orientation_x', 
+                            lower= axis_delta[0],
+                            upper= axis_delta[0],
+                            weight=weight,
+                            expression= current_axis[0])
+        self.add_constraint(str(self) + u'orientation_y', 
+                            lower= axis_delta[1],
+                            upper= axis_delta[1],
+                            weight=weight,
+                            expression= current_axis[1])
+        self.add_constraint(str(self) + u'orientation_z', 
+                            lower= axis_delta[2],
+                            upper= axis_delta[2],
+                            weight=weight,
+                            expression= current_axis[2])
+        self.add_constraint(str(self) + u'goal_x', 
+                            lower= goal_delta_x,
+                            upper= goal_delta_x,
+                            weight=weight,
+                            expression= current_position[0])
+        self.add_constraint(str(self) + u'goal_y', 
+                            lower= goal_delta_y,
+                            upper= goal_delta_y,
+                            weight=weight,
+                            expression= current_position[1])
+
+    def __str__(self):
+        s = super(OpenDoorConstraint, self).__str__()
+        return u'{}/{}/{}'.format(s, self.root, self.tip)
