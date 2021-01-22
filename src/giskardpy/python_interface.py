@@ -361,6 +361,7 @@ class GiskardWrapper(object):
         :param goal_joint_state: how far to open
         """
         constraint = Constraint()
+        constraint.type = u'Open'
         params = {u'tip_link': tip_link,
                   u'object_name': object_name,
                   u'object_link_name': object_link_name}
