@@ -360,19 +360,24 @@ class GiskardWrapper(object):
         :type goal_joint_state: float
         :param goal_joint_state: how far to open
         """
-        constraint = Constraint()
-        constraint.type = u'Open'
-        params = {u'tip_link': tip_link,
-                  u'object_name': object_name,
-                  u'object_link_name': object_link_name}
-        if root_link:
-            params[u'root_link'] = root_link
-        if goal_joint_state:
-            params[u'goal_joint_state'] = goal_joint_state
-        if weight:
-            params[u'weight'] = weight
-        constraint.parameter_value_pair = json.dumps(params)
-        self.cmd_seq[-1].constraints.append(constraint)
+        #constraint = Constraint()
+        #constraint.type = u'Open'
+        #params = {u'tip_link': tip_link,
+        #          u'object_name': object_name,
+        #          u'object_link_name': object_link_name}
+        #if root_link:
+        #    params[u'root_link'] = root_link
+        #if goal_joint_state:
+        #    params[u'goal_joint_state'] = goal_joint_state
+        #if weight:
+        #    params[u'weight'] = weight
+        #constraint.parameter_value_pair = json.dumps(params)
+        #self.cmd_seq[-1].constraints.append(constraint)
+
+        self.set_json_goal(u'Open',
+                      tip_link=tip_link,
+                      object_name=u'iai_kitchen',
+                      object_link_name=object_link_name)
 
     def update_god_map(self, updates):
         """
