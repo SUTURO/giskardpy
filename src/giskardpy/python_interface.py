@@ -386,15 +386,19 @@ class GiskardWrapper(object):
         tip_grasp_axis.vector.x = 1
         tip_grasp_axis.header.frame_id = tip_link
         self.allow_all_collisions()
-        self.grasp_bar(root_link, tip_link, tip_grasp_axis, bar_center, bar_axis, 0.15)
+        self.grasp_bar(root_link, tip_link, tip_grasp_axis, bar_center, bar_axis, 0.075)
         self.plan_and_execute(wait=False)
 
         if self.get_result():
             rospy.logerr("WAS SUCCESSFUL")
-            #self.set_json_goal(u'Open',
-            #            tip_link=tip_link,
-            #            object_name=u'iai_kitchen',
-            #            object_link_name=handle_name)
+            self.set_json_goal(u'OpenDoor',
+                             tip_link=tip_link,
+                             object_name=u'iai_kitchen',
+                             object_link_name=handle_name,
+                             angle_goal=1.5
+                            )
+            self.allow_all_collisions()
+            self.plan_and_execute(wait=True)
         else:
             rospy.logerr("Cant grasp bar.")
 
