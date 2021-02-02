@@ -5,6 +5,7 @@ from collections import OrderedDict
 from copy import deepcopy
 
 import PyKDL as kdl
+import rospy
 import numpy as np
 from geometry_msgs.msg import Vector3Stamped, Vector3
 from giskard_msgs.msg import Constraint as Constraint_msg
@@ -182,6 +183,7 @@ class Constraint(object):
         result = convert_dictionary_to_ros_message(u'geometry_msgs/Vector3Stamped', vector3_stamped_json)
         result = tf.transform_vector(goal_reference_frame, result)
         if normalized:
+            result.vector = tf.normalize(result.vector)
             result.vector = tf.normalize(result.vector)
         return result
 
@@ -2108,8 +2110,8 @@ class OpenDoor(Constraint):
         self.hinge_joint = environment_object.get_movable_parent_joint(object_link_name)
         hinge_child = environment_object.get_child_link_of_joint(self.hinge_joint)
 
-        hinge_frame_id = u'iai_kitchen/' + hinge_child
 
+        hinge_frame_id = u'iai_kitchen/' + hinge_child
         hinge_V_hinge_axis = kdl.Vector(*environment_object.get_joint_axis(self.hinge_joint))
         hinge_V_hinge_axis_msg = Vector3Stamped()
         hinge_V_hinge_axis_msg.header.frame_id = hinge_frame_id

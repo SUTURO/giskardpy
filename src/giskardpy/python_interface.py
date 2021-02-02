@@ -373,11 +373,30 @@ class GiskardWrapper(object):
         #    params[u'weight'] = weight
         #constraint.parameter_value_pair = json.dumps(params)
         #self.cmd_seq[-1].constraints.append(constraint)
+        handle_frame_id = u'iai_kitchen/' + object_link_name
+        handle_name = object_link_name
+        bar_axis = Vector3Stamped()
+        bar_axis.header.frame_id = handle_frame_id
+        bar_axis.vector.x = 1
 
-        self.set_json_goal(u'Open',
-                      tip_link=tip_link,
-                      object_name=u'iai_kitchen',
-                      object_link_name=object_link_name)
+        bar_center = PointStamped()
+        bar_center.header.frame_id = handle_frame_id
+
+        tip_grasp_axis = Vector3Stamped()
+        tip_grasp_axis.vector.x = 1
+        tip_grasp_axis.header.frame_id = tip_link
+        self.allow_all_collisions()
+        self.grasp_bar(root_link, tip_link, tip_grasp_axis, bar_center, bar_axis, 0.15)
+        self.plan_and_execute(wait=False)
+
+        if self.get_result():
+            rospy.logerr("WAS SUCCESSFUL")
+            #self.set_json_goal(u'Open',
+            #            tip_link=tip_link,
+            #            object_name=u'iai_kitchen',
+            #            object_link_name=handle_name)
+        else:
+            rospy.logerr("Cant grasp bar.")
 
     def update_god_map(self, updates):
         """
