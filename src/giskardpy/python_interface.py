@@ -346,7 +346,7 @@ class GiskardWrapper(object):
                            max_angular_velocity=max_angular_velocity,
                            weight=weight)
 
-    def set_open_goal(self, tip_link, object_name, object_link_name, root_link=None, goal_joint_state=None,
+    def set_open_goal(self, tip_link, object_link_name, angle_goal,
              weight=WEIGHT_ABOVE_CA):
         """
         :type tip_link: str
@@ -360,47 +360,15 @@ class GiskardWrapper(object):
         :type goal_joint_state: float
         :param goal_joint_state: how far to open
         """
-        #constraint = Constraint()
-        #constraint.type = u'Open'
-        #params = {u'tip_link': tip_link,
-        #          u'object_name': object_name,
-        #          u'object_link_name': object_link_name}
-        #if root_link:
-        #    params[u'root_link'] = root_link
-        #if goal_joint_state:
-        #    params[u'goal_joint_state'] = goal_joint_state
-        #if weight:
-        #    params[u'weight'] = weight
-        #constraint.parameter_value_pair = json.dumps(params)
-        #self.cmd_seq[-1].constraints.append(constraint)
-        handle_frame_id = u'iai_kitchen/' + object_link_name
-        handle_name = object_link_name
-        bar_axis = Vector3Stamped()
-        bar_axis.header.frame_id = handle_frame_id
-        bar_axis.vector.x = 1
 
-        bar_center = PointStamped()
-        bar_center.header.frame_id = handle_frame_id
-
-        tip_grasp_axis = Vector3Stamped()
-        tip_grasp_axis.vector.x = 1
-        tip_grasp_axis.header.frame_id = tip_link
-        self.allow_all_collisions()
-        self.grasp_bar(root_link, tip_link, tip_grasp_axis, bar_center, bar_axis, 0.075)
-        self.plan_and_execute(wait=False)
-
-        if self.get_result():
-            rospy.logerr("WAS SUCCESSFUL")
-            self.set_json_goal(u'OpenDoor',
-                             tip_link=tip_link,
-                             object_name=u'iai_kitchen',
-                             object_link_name=handle_name,
-                             angle_goal=1.5
-                            )
-            self.allow_all_collisions()
-            self.plan_and_execute(wait=True)
-        else:
-            rospy.logerr("Cant grasp bar.")
+        self.set_joint_goal({'arm_lift_joint': 0.45})
+        #self.set_joint_goal({'wrist_flex_joint': 0.4})
+        self.set_json_goal(u'OpenDoor',
+                           tip_link=tip_link,
+                           object_name=u'iai_kitchen',
+                           object_link_name=object_link_name,
+                           angle_goal=angle_goal
+                           )
 
     def update_god_map(self, updates):
         """
