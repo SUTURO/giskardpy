@@ -59,6 +59,7 @@ class WiggleCancel(GiskardBehavior):
 
         js_samples_array = np.array(self.js_samples)
         plot = False
+
         try:
             self.detect_shaking(js_samples_array, self.sample_period, self.min_wiggle_frequency,
                                 self.amplitude_threshold, self.thresholds, self.velocity_limits, plot)
@@ -74,6 +75,7 @@ class WiggleCancel(GiskardBehavior):
                     logging.loginfo(u'cutting off last second')
                     return Status.SUCCESS
             raise e
+
 
         return Status.RUNNING
 
