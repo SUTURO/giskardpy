@@ -2183,6 +2183,8 @@ class OpenDoor(Constraint):
 
         dist_expr = w.norm(hinge_P_tip)
         weight = self.normalize_weight(0.1, base_weight)
+        self.add_debug_matrix('hinge_T_root', hinge_T_root)
+        self.add_debug_constraint('dist_expr', dist_expr)
         self.add_constraint(u'/dist',
                             dist_goal - dist_expr,
                             dist_goal - dist_expr,
@@ -2197,7 +2199,8 @@ class OpenDoor(Constraint):
         projection = w.dot(hinge0_P_tipCurrent.T, hinge_V_hinge_axis)
         hinge0_P_tipCurrentProjected = hinge0_P_tipCurrent - hinge_V_hinge_axis * projection
 
-        current_tip_angle_projected = w.angle_between_vector(hinge0_P_tipStartProjected, hinge0_P_tipCurrentProjected)
+        #HERE ROTATION MULTIPLY
+        current_tip_angle_projected = np.sign(self.angle_goal) * w.angle_between_vector(hinge0_P_tipStartProjected, hinge0_P_tipCurrentProjected)
 
         hinge0_T_hingeCurrent = w.rotation_matrix_from_axis_angle(hinge_V_hinge_axis, current_tip_angle_projected)
 
@@ -2254,6 +2257,7 @@ class OpenDrawer(Constraint):
         self.hinge_joint = environment_object.get_movable_parent_joint(object_link_name)
         # Child of joint
         hinge_child = environment_object.get_child_link_of_joint(self.hinge_joint)
+
 
         hinge_frame_id = u'iai_kitchen/' + hinge_child
 
