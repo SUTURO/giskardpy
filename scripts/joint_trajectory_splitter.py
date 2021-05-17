@@ -55,6 +55,7 @@ class JointTrajectorySplitter:
             waiting_for_topic = True
             while waiting_for_topic:
                 try:
+                    rospy.logwarn(self.client_topics[i])
                     rospy.wait_for_message(self.state_topics[i], AnyMsg, timeout=10)
                     waiting_for_topic = False
                     type = rostopic.get_info_text(self.client_topics[i] + '/goal').split('\n')[0][6:]

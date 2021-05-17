@@ -23,7 +23,7 @@ general_options:
   joint_weights:
     # the planner prefers low weight joints to achieve solutions
     # higher weights reduce wiggling, but lower the maximum joint velocity, which might make the planner stop too early
-    default: 0.01
+    default: 0.05
     override: {}
 qp_solver:
   nWSR: None # None results in a nWSR estimation that's fine most of the time
@@ -36,7 +36,7 @@ plugins:
   CPIMarker: # contact visualization, slows planning down a little bit
     enabled: True
   PlotTrajectory: # plots the joint trajectory at the end of planning, useful for debugging
-    enabled: False
+    enabled: True
     velocity_threshold: 0.0 # only joints that exceed this velocity threshold will be added to the plot. Use a negative number if you want to include every joint
     scaling: 2.5 # determines how much the x axis is scaled with the length(time) of the trajectory
     normalize_position: False # centers the joint positions around 0 on the y axis

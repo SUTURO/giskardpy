@@ -335,6 +335,12 @@ class GiskardWrapper(object):
         :param weight: default WEIGHT_ABOVE_CA
         :type weight: float
         """
+        #self.set_joint_goal({'arm_lift_joint': 0.2})
+        #self.set_joint_goal({'wrist_flex_joint': 0})
+        #self.set_joint_goal({'arm_roll_joint': 0})
+        #self.set_joint_goal({'wrist_roll_joint': 1.57})
+        #self.set_joint_goal({'odom_x': 0})
+        #self.set_joint_goal({'odom_y': 0})
         self.set_json_goal(u'GraspBar',
                            root_link=root_link,
                            tip_link=tip_link,
@@ -360,9 +366,9 @@ class GiskardWrapper(object):
         :type goal_joint_state: float
         :param goal_joint_state: how far to open
         """
-
-        self.set_joint_goal({'arm_lift_joint': 0.45})
-        #self.set_joint_goal({'wrist_flex_joint': 0.4})
+        #self.set_joint_goal({'odom_y': 0})
+        #self.set_joint_goal({'odom_t': 0})
+        #self.set_joint_goal({'arm_lift_joint': 0.4})
         self.set_json_goal(u'OpenDoor',
                            tip_link=tip_link,
                            object_name=u'iai_kitchen',
