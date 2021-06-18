@@ -26,6 +26,11 @@ class QProblemBuilder(object):
         :param path_to_functions: location where the compiled functions can be safed.
         :type path_to_functions: str
         """
+        print("=================================")
+        print("controlled_joint_symbols: {}".format(len(controlled_joint_symbols)))
+        print("=================================")
+        print("joint_constraints_dict: {}".format(len(joint_constraints_dict)))
+        print("=================================")
         assert (not len(controlled_joint_symbols) > len(joint_constraints_dict))
         assert (not len(controlled_joint_symbols) < len(joint_constraints_dict))
         assert (len(hard_constraints_dict) <= len(controlled_joint_symbols))

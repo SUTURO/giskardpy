@@ -110,7 +110,7 @@ class GoalToConstraints(GetGoal):
                         linear_weight=0)
         else:
             joint_constraints = OrderedDict(((self.robot.get_name(), k), self.robot._joint_constraints[k]) for k in
-                                            controlled_joints)
+                                            controlled_joints if k in self.robot._joint_constraints)
         hard_constraints = OrderedDict(((self.robot.get_name(), k), self.robot._hard_constraints[k]) for k in
                                        controlled_joints if k in self.robot._hard_constraints)
 

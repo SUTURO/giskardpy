@@ -57,16 +57,17 @@ class PyBulletWorldObject(WorldObject):
             WorldObject.joint_state.fset(self, value)
             for joint_name, singe_joint_state in value.items():
                 # FIXME hack because pybullet doesn't support mimic joints
-                if not self.is_joint_mimic(joint_name):
-                    p.resetJointState(self._pybullet_id, self.joint_name_to_info[joint_name].joint_index,
-                                      singe_joint_state.position)
-                if joint_name in self.mimic_cb:
-                    mimic_joint, cb = self.mimic_cb[joint_name]
-                    mimiced_position = cb(singe_joint_state.position)
-                    p.resetJointState(self._pybullet_id, self.joint_name_to_info[mimic_joint].joint_index,
-                                      mimiced_position)
-                else:
-                    pass
+                if joint_name in self.joint_name_to_info:
+                    if not self.is_joint_mimic(joint_name):
+                        p.resetJointState(self._pybullet_id, self.joint_name_to_info[joint_name].joint_index,
+                                        singe_joint_state.position)
+                    if joint_name in self.mimic_cb:
+                        mimic_joint, cb = self.mimic_cb[joint_name]
+                        mimiced_position = cb(singe_joint_state.position)
+                        p.resetJointState(self._pybullet_id, self.joint_name_to_info[mimic_joint].joint_index,
+                                        mimiced_position)
+                    else:
+                        pass
 
 
     @WorldObject.base_pose.setter

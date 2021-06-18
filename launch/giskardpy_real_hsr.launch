@@ -4,14 +4,19 @@
 
   <remap from="/robot_description" to="/giskard/robot_description" />
 
+
+  <node pkg="giskardpy" type="urdf_republisher.py" name="urdf_republisher" output="screen" />
+
+<!--
   <group if="$(eval arg('on_hsr') == true)">
     <node pkg="giskardpy" type="urdf_merger.py" name="urdf_merger" output="screen">
       <rosparam param="/urdf_merger/urdf_sources" subst_value="true">
+      - source : robot_description         
       - source : $(find giskardpy)/test/urdfs/holonomic_base.urdf
-      - source : robot_description
         link : odom_t_link
         position : [0,0,0]
         rotation : [0,0,0,1]
+
       </rosparam>
       <param name="robot_name" value="hsrb"/>
     </node>
@@ -22,7 +27,7 @@
         <arg name="description_name" value="/giskard/robot_description"/>
       </include>
   </group>
-
+-->
   <!--joint_trajectory_action offers an action interface for the hsrb base controller because the standard interface only offers a topic to send goals.
    The joint goal splitter uses this interface to send joint trajectories to the base controller of the hsr-->
   <!--#######################################################################-->
@@ -41,8 +46,8 @@
   </node>
 
   <node pkg="giskardpy" type="joint_trajectory_splitter.py" name="joint_trajectory_splitter" output="screen">
-    <rosparam param="state_topics">["/hsrb/arm_trajectory_controller/state", "/hsrb/omni_base_controller/state" , "/hsrb/head_trajectory_controller/state"]</rosparam>
-    <rosparam param="client_topics">["/hsrb/arm_trajectory_controller/follow_joint_trajectory", "/hsrb/omni_base_controller/follow_joint_trajectory", "/hsrb/head_trajectory_controller/follow_joint_trajectory"]</rosparam>
+    <rosparam param="state_topics">["/hsrb/arm_trajectory_controller/state", "/hsrb/omni_trajectory_controller/state" , "/hsrb/head_trajectory_controller/state"]</rosparam>
+    <rosparam param="client_topics">["/hsrb/arm_trajectory_controller/follow_joint_trajectory", "/hsrb/omni_trajectory_controller/follow_joint_trajectory", "/hsrb/head_trajectory_controller/follow_joint_trajectory"]</rosparam>
   </node>
 
   <!--#######################################################################-->
@@ -58,7 +63,7 @@
   <node pkg="joint_state_publisher" type="joint_state_publisher" name="giskard_joint_state_publisher" output="screen" >
     <rosparam param="source_list">
     - /hsrb/joint_states
-    - /hsrb_base/joint_states
+    - /hsrb/robot_state/joint_states
     </rosparam>
     <rosparam param="zeros">
     'odom_x': 0.0

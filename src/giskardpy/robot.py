@@ -182,13 +182,19 @@ class Robot(Backend):
                 raise TypeError(u'Joint type "{}" is not supported by urdfs parser.'.format(urdf_joint.type))
 
             if self.is_joint_rotational(joint_name):
-                joint_frame = w.dot(joint_frame,
-                                    w.rotation_matrix_from_axis_angle(w.vector3(*urdf_joint.axis), joint_symbol))
+                try:
+                    joint_frame = w.dot(joint_frame,
+                                        w.rotation_matrix_from_axis_angle(w.vector3(*urdf_joint.axis), joint_symbol))
+                except:
+                    pass
             elif self.is_joint_prismatic(joint_name):
-                translation_axis = (w.point3(*urdf_joint.axis) * joint_symbol)
-                joint_frame = w.dot(joint_frame, w.translation3(translation_axis[0],
-                                                                translation_axis[1],
-                                                                translation_axis[2]))
+                try:
+                    translation_axis = (w.point3(*urdf_joint.axis) * joint_symbol)
+                    joint_frame = w.dot(joint_frame, w.translation3(translation_axis[0],
+                                                                    translation_axis[1],
+                                                                    translation_axis[2]))
+                except:
+                    pass
 
             self._joint_to_frame[joint_name] = joint_frame
 
@@ -281,15 +287,18 @@ class Robot(Backend):
         :return: minimum of default velocity limit and limit specified in urdfs
         :rtype: float
         """
-        limit = self._urdf_robot.joint_map[joint_name].limit
-        if self.is_joint_prismatic(joint_name):
-            limit_symbol = self._joint_velocity_linear_limit[joint_name]
+        if joint_name in self._urdf_robot.joint_map:
+            limit = self._urdf_robot.joint_map[joint_name].limit
+            if self.is_joint_prismatic(joint_name):
+                limit_symbol = self._joint_velocity_linear_limit[joint_name]
+            else:
+                limit_symbol = self._joint_velocity_angular_limit[joint_name]
+            if limit is None or limit.velocity is None:
+                return limit_symbol
+            else:
+                return w.Min(limit.velocity, limit_symbol)
         else:
-            limit_symbol = self._joint_velocity_angular_limit[joint_name]
-        if limit is None or limit.velocity is None:
-            return limit_symbol
-        else:
-            return w.Min(limit.velocity, limit_symbol)
+            pass
 
     def get_joint_velocity_limit_expr_evaluated(self, joint_name, god_map):
         """
@@ -299,8 +308,11 @@ class Robot(Backend):
         :rtype: float
         """
         limit = self.get_joint_velocity_limit_expr(joint_name)
-        f = w.speed_up(limit, w.free_symbols(limit))
-        return f.call2(god_map.get_values(f.str_params))[0][0]
+        if limit is not None:
+            f = w.speed_up(limit, w.free_symbols(limit))
+            return f.call2(god_map.get_values(f.str_params))[0][0]
+        else:
+            pass
 
     def get_joint_frame(self, joint_name):
         """

@@ -299,8 +299,11 @@ class URDFObject(object):
 
     @memoize
     def get_joint_axis(self, joint_name):
-        joint = self.get_urdf_joint(joint_name)
-        return joint.axis
+        try:
+            joint = self.get_urdf_joint(joint_name)
+            return joint.axis
+        except AttributeError:
+            return None
 
     @memoize
     def is_joint_movable(self, name):
@@ -310,8 +313,11 @@ class URDFObject(object):
         :return: True if joint type is revolute, continuous or prismatic
         :rtype: bool
         """
-        joint = self.get_urdf_joint(name)
-        return joint.type in MOVABLE_JOINT_TYPES and joint.mimic is None
+        try:
+            joint = self.get_urdf_joint(name)
+            return joint.type in MOVABLE_JOINT_TYPES and joint.mimic is None
+        except AttributeError:
+            return False
 
     @memoize
     def is_joint_mimic(self, name):
@@ -320,8 +326,11 @@ class URDFObject(object):
         :type name: str
         :rtype: bool
         """
-        joint = self.get_urdf_joint(name)
-        return joint.type in MOVABLE_JOINT_TYPES and joint.mimic is not None
+        try:
+            joint = self.get_urdf_joint(name)
+            return joint.type in MOVABLE_JOINT_TYPES and joint.mimic is not None
+        except AttributeError:
+            return False
 
     @memoize
     def get_mimiced_joint_name(self, joint_name):
@@ -378,7 +387,10 @@ class URDFObject(object):
 
     @memoize
     def get_joint_type(self, name):
-        return self.get_urdf_joint(name).type
+        try:
+            return self.get_urdf_joint(name).type
+        except AttributeError:
+            return None
 
     @memoize
     def is_joint_type_supported(self, name):
@@ -455,12 +467,16 @@ class URDFObject(object):
         tree_joints = []
         joints = [joint_name]
         for joint in joints:
-            child_link = self._urdf_robot.joint_map[joint].child
-            if child_link in self._urdf_robot.child_map:
-                for j, l in self._urdf_robot.child_map[child_link]:
-                    joints.append(j)
-                    tree_joints.append(self.get_urdf_joint(j))
-            tree_links.append(self.get_urdf_link(child_link))
+            if self.has_joint(joint):
+                child_link = self._urdf_robot.joint_map[joint].child
+                if child_link in self._urdf_robot.child_map:
+                    for j, l in self._urdf_robot.child_map[child_link]:
+                        try:
+                            tree_joints.append(self.get_urdf_joint(j))  
+                            joints.append(j)     
+                        except AttributeError:
+                            pass                                       
+                tree_links.append(self.get_urdf_link(child_link))
 
         return URDFObject.from_parts(joint_name, tree_links, tree_joints)
 
@@ -469,6 +485,9 @@ class URDFObject(object):
         try:
             return self._urdf_robot.joint_map[joint_name]
         except :
+            print("Error joint not mapped: {}".format(joint_name))
+            print(self._urdf_robot)
+            print(self._urdf_robot.joint_map)
             pass
 
     @memoize
@@ -489,15 +508,16 @@ class URDFObject(object):
         :return: True if collision geometry is mesh or simple shape with volume/surface bigger than thresholds.
         :rtype: bool
         """
-        link = self._urdf_robot.link_map[link_name]
-        if link.collision is not None:
-            geo = link.collision.geometry
-            return isinstance(geo, up.Box) and (cube_volume(*geo.size) > volume_threshold or
-                                                cube_surface(*geo.size) > surface_threshold) or \
-                   isinstance(geo, up.Sphere) and sphere_volume(geo.radius) > volume_threshold or \
-                   isinstance(geo, up.Cylinder) and (cylinder_volume(geo.radius, geo.length) > volume_threshold or
-                                                     cylinder_surface(geo.radius, geo.length) > surface_threshold) or \
-                   isinstance(geo, up.Mesh)
+        if link_name is not None:
+            link = self._urdf_robot.link_map[link_name]
+            if link.collision is not None:
+                geo = link.collision.geometry
+                return isinstance(geo, up.Box) and (cube_volume(*geo.size) > volume_threshold or
+                                                    cube_surface(*geo.size) > surface_threshold) or \
+                    isinstance(geo, up.Sphere) and sphere_volume(geo.radius) > volume_threshold or \
+                    isinstance(geo, up.Cylinder) and (cylinder_volume(geo.radius, geo.length) > volume_threshold or
+                                                        cylinder_surface(geo.radius, geo.length) > surface_threshold) or \
+                    isinstance(geo, up.Mesh)
         return False
 
     def get_urdf_str(self):
@@ -600,13 +620,16 @@ class URDFObject(object):
 
     @memoize
     def get_joint_origin(self, joint_name):
-        origin = self.get_urdf_joint(joint_name).origin
-        p = Pose()
-        p.position.x = origin.xyz[0]
-        p.position.y = origin.xyz[1]
-        p.position.z = origin.xyz[2]
-        p.orientation = Quaternion(*quaternion_from_euler(*origin.rpy))
-        return p
+        try:
+            origin = self.get_urdf_joint(joint_name).origin
+            p = Pose()
+            p.position.x = origin.xyz[0]
+            p.position.y = origin.xyz[1]
+            p.position.z = origin.xyz[2]
+            p.orientation = Quaternion(*quaternion_from_euler(*origin.rpy))
+            return p
+        except AttributeError:
+            pass
 
     def detach_sub_tree(self, joint_name):
         """
@@ -619,7 +642,10 @@ class URDFObject(object):
         for link in sub_tree.get_link_names():
             self._urdf_robot.remove_aggregate(self.get_urdf_link(link))
         for joint in chain([joint_name], sub_tree.get_joint_names()):
-            self._urdf_robot.remove_aggregate(self.get_urdf_joint(joint))
+            try:
+                self._urdf_robot.remove_aggregate(self.get_urdf_joint(joint))
+            except AttributeError:
+                pass
         self.reinitialize()
         return sub_tree
 
@@ -674,11 +700,17 @@ class URDFObject(object):
 
     @memoize
     def get_parent_link_of_joint(self, joint_name):
-        return self._urdf_robot.joint_map[joint_name].parent
+        if self.has_joint(joint_name):
+            return self._urdf_robot.joint_map[joint_name].parent
+        else:
+            return None
 
     @memoize
     def get_child_link_of_joint(self, joint_name):
-        return self._urdf_robot.joint_map[joint_name].child
+        if self.has_joint(joint_name):
+            return self._urdf_robot.joint_map[joint_name].child
+        else:
+            return None
 
     @memoize
     def are_linked(self, link_a, link_b):
