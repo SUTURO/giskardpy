@@ -233,8 +233,19 @@ class Reaching(ObjectGoal):
         if self.action == ContextActionModes.grasping.value:
             if self.object_shape == 'sphere' or self.object_shape == 'cylinder':
                 self.radius = self.object_size.x
+
+            elif self.object_name == 'plate':
+                self.radius = -(self.object_size.x / 2) + 0.03
+
+            elif self.object_name == 'bowl':
+                print('Bowl!')
+                object_size = Vector3(0.16, 0.16, 0.058)
+                self.radius = -(object_size.x / 2) + 0.15
+
             else:
-                if self.object_in_world:
+                if self.from_above:
+                    pass
+                elif self.object_in_world:
                     self.radius = - 0.02
                 else:
                     self.radius = max(min(0.08, self.object_size.x / 2), 0.05)
@@ -363,6 +374,9 @@ class GraspObject(ObjectGoal):
         if self.from_above:
             self.goal_vertical_axis.vector = self.standard_forward
             self.goal_frontal_axis.vector = multiply_vector(self.standard_up, -1)
+            self.goal_point.point.y += frontal_offset
+            if frontal_offset > 0:
+                self.goal_point.point.z += 0.04
 
         else:
             self.goal_vertical_axis.vector = self.standard_up
@@ -417,6 +431,8 @@ class GraspObject(ObjectGoal):
                                                       start_condition=start_condition,
                                                       hold_condition=hold_condition,
                                                       end_condition=end_condition))
+
+        # god_map.debug_expression_manager.add_debug_expression('goal point', self.goal_point)
 
 
 class VerticalMotion(ObjectGoal):
