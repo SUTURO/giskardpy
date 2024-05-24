@@ -21,7 +21,7 @@ class Demo:
         goal.header.frame_id = 'map'
         goal.pose.orientation.z = 1
         goal.pose.orientation.w = -0.04
-        goal.pose.position.x = 1.70
+        goal.pose.position.x = 1.70 # (+0.14)
         goal.pose.position.y = 1.75
 
         cart_mon = self.gis.monitors.add_cartesian_pose(goal_pose=goal,
@@ -49,7 +49,7 @@ class Demo:
         goal2.header.frame_id = 'map'
         goal2.pose.orientation.z = 1
         goal2.pose.orientation.w = -0.04
-        goal2.pose.position.x = 1.50
+        goal2.pose.position.x = 1.50  # (+0.14)
         goal2.pose.position.y = 1.75
 
         cart_mon2 = self.gis.monitors.add_cartesian_pose(goal_pose=goal2,
@@ -80,7 +80,7 @@ class Demo:
         align_pose.header.frame_id = 'hand_gripper_tool_frame'
         align_pose.pose.orientation.z = 1
         align_pose.pose.orientation.w = -0.04
-        align_pose.pose.position.x = 1.70
+        align_pose.pose.position.x = 1.70  # (+0.14)
         align_pose.pose.position.y = 1.75
         align_pose.pose.position.z = 1.2
 
@@ -147,7 +147,7 @@ class Demo:
         self.box_pose.header.frame_id = 'map'
         self.box_pose.pose.position.x = 0.95
         self.box_pose.pose.position.y = 1.75
-        self.box_pose.pose.position.z = 0.726
+        self.box_pose.pose.position.z = 0.746  # 0.726
         #self.box_pose.pose.orientation = Quaternion(0, 0, 1, 0)
         self.box_pose.pose.orientation = Quaternion(0, 0, 1, 1.3)
 
