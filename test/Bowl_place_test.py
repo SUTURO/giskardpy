@@ -157,7 +157,7 @@ class Demo:
         #self.gis.add_box(name='milk', size=(0.085, 0.06, 0.195), pose=self.box_pose)
         #self.gis.add_box(name='cutlery', size=(0.15, 0.021, 0.016), pose=self.box_pose)
         #self.gis.add_box(name='plate', size=(0.26, 0.26, 0.025), pose=self.box_pose)
-        self.gis.add_mesh(name='bowl', mesh='/home/yannis/giskardpy_ws/src/giskardpy/test/urdfs/meshes/bowl_21.obj', pose=self.box_pose)
+        self.gis.add_mesh(name='bowl', mesh='test/urdfs/meshes/bowl_21.obj', pose=self.box_pose)
 
     def add_kitchen(self):
         env_urdf = rospy.get_param('kitchen_description')

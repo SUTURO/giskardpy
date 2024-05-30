@@ -117,7 +117,7 @@ class Demo:
 
         goal_pose = self.box_pose
         goal_pose.pose.position.z -= 0.00035
-        goal_pose.pose.position.x += 0.07
+        goal_pose.pose.position.x += 0.07  # might need to be changed
         # goal_pose.pose.position.y += -0.70
 
         from_above = ContextTypes.context_from_above.value(content=False)
@@ -145,9 +145,9 @@ class Demo:
 
     def test(self):
         self.box_pose.header.frame_id = 'map'
-        self.box_pose.pose.position.x = 1.04
+        self.box_pose.pose.position.x = 1.04  # may need to be changed to 0.95 for new table
         self.box_pose.pose.position.y = 1.75
-        self.box_pose.pose.position.z = 0.726   # 0.726
+        self.box_pose.pose.position.z = 0.746   # 0.726
         #self.box_pose.pose.orientation = Quaternion(0, 0, 1, 0)
         self.box_pose.pose.orientation = Quaternion(0, 0, 1, 0)
 

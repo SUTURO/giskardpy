@@ -145,7 +145,7 @@ class Demo:
 
     def test(self):
         self.box_pose.header.frame_id = 'map'
-        self.box_pose.pose.position.x = 0.95
+        self.box_pose.pose.position.x = 1.00
         self.box_pose.pose.position.y = 1.75
         self.box_pose.pose.position.z = 0.746  # 0.726
         #self.box_pose.pose.orientation = Quaternion(0, 0, 1, 0)
