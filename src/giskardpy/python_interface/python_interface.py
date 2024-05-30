@@ -1539,6 +1539,8 @@ class GiskardWrapper:
     def monitor_placing(self,
                         context,
                         goal_pose: PoseStamped,
+                        threshold_name: str = "",
+                        object_type: str = "",
                         tip_link: str = 'hand_palm_link',
                         velocity: float = 0.02):
         """
@@ -1549,8 +1551,8 @@ class GiskardWrapper:
         force_torque_trigger = self.monitors.add_monitor(monitor_class=PayloadForceTorque.__name__,
                                                          name=PayloadForceTorque.__name__,
                                                          start_condition='',
-                                                         threshold_name=ForceTorqueThresholds.FT_Placing.value,
-                                                         is_raw=False)
+                                                         threshold_name=threshold_name,
+                                                         object_type=object_type)
 
         self.motion_goals.add_motion_goal(motion_goal_class='Placing',
                                           context=context,
@@ -1569,25 +1571,30 @@ class GiskardWrapper:
                                 from_above: bool = False,
                                 align_vertical: bool = False,
                                 reference_frame_alignment: Optional[str] = None,
+                                object_name: str = "",
+                                object_type: str = "",
+                                threshold_name: str = "",
                                 root_link: Optional[str] = None,
                                 tip_link: Optional[str] = None):
         """
-        adds monitor functionality for the GraspCarefully motion goal, goal now stops if force_threshold is overstepped,
+        adds monitor functionality to the reaching goal, thus making the original GraspCarefully motion goal redundant.
+        The goal now stops if force_threshold/torque_threshold is undershot,
         which means it essentially stops automatically if the HSR for example slips off of a door handle while trying
-        to open doors.
+        to open doors or fails to properly grip an object.
         """
         sleep = self.monitors.add_sleep(1.5)
         force_torque_trigger = self.monitors.add_monitor(monitor_class=PayloadForceTorque.__name__,
                                                          name=PayloadForceTorque.__name__,
                                                          start_condition='',
-                                                         threshold_name=ForceTorqueThresholds.FT_GraspWithCare.value,
-                                                         is_raw=False)
+                                                         threshold_name=threshold_name,
+                                                         object_type=object_type)
 
-        self.motion_goals.add_motion_goal(motion_goal_class='GraspCarefully',
+        self.motion_goals.add_motion_goal(motion_goal_class='Reaching',
                                           goal_pose=goal_pose,
                                           from_above=from_above,
                                           align_vertical=align_vertical,
                                           reference_frame_alignment=reference_frame_alignment,
+                                          object_name=object_name,
                                           root_link=root_link,
                                           tip_link=tip_link,
                                           end_condition=f'{force_torque_trigger} and {sleep}')

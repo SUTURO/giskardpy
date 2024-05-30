@@ -186,6 +186,7 @@ catkin_install_python(PROGRAMS
 	scripts/tools/print_joint_state.py
 	scripts/examples/python_interface_example.py
 	scripts/examples/old_python_interface_example.py
+	scripts/force_torque_raw_filter.py
 	scripts/upload_env.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
