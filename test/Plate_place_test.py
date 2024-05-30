@@ -29,13 +29,10 @@ class Demo:
                                                         root_link='map',
                                                         name='goal reached')
 
-        hold_mon = self.gis.monitors.add_payload_lidar(laser_distance_threshold=0.45,
-                                                       laser_distance_threshold_width=0.45)
-
         self.gis.motion_goals.add_cartesian_pose(goal_pose=goal,
                                                  root_link='map',
                                                  tip_link='base_footprint',
-                                                 hold_condition=hold_mon,
+                                                 hold_condition='',
                                                  end_condition=cart_mon)
 
         local_min = self.gis.monitors.add_local_minimum_reached(start_condition=cart_mon)
@@ -57,13 +54,10 @@ class Demo:
                                                          root_link='map',
                                                          name='goal reached')
 
-        hold_mon2 = self.gis.monitors.add_payload_lidar(laser_distance_threshold=0.45,
-                                                        laser_distance_threshold_width=0.45)
-
         self.gis.motion_goals.add_cartesian_pose(goal_pose=goal2,
                                                  root_link='map',
                                                  tip_link='base_footprint',
-                                                 hold_condition=hold_mon2,
+                                                 hold_condition='',
                                                  end_condition=cart_mon2)
 
         local_min = self.gis.monitors.add_local_minimum_reached(start_condition=cart_mon2)
