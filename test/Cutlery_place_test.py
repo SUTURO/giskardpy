@@ -76,13 +76,13 @@ class Demo:
         self.gis.take_pose("pre_align_height")
         self.gis.execute(add_default=True)
 
-        align_pose = PoseStamped()
-        align_pose.header.frame_id = 'hand_gripper_tool_frame'
-        align_pose.pose.orientation.z = 1
-        align_pose.pose.orientation.w = -0.04
-        align_pose.pose.position.x = 1.70  # (+0.14)
-        align_pose.pose.position.y = 1.75
-        align_pose.pose.position.z = 1.2
+        # align_pose = PoseStamped()
+        # align_pose.header.frame_id = 'hand_gripper_tool_frame'
+        # align_pose.pose.orientation.z = 1
+        # align_pose.pose.orientation.w = -0.04
+        # align_pose.pose.position.x = 1.70  # (+0.14)
+        # align_pose.pose.position.y = 1.75
+        # align_pose.pose.position.z = 1.2
 
         action = ContextTypes.context_action.value(content=ContextActionModes.grasping.value)
         from_above = ContextTypes.context_from_above.value(content=True)

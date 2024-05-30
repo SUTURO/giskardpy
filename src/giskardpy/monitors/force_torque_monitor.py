@@ -165,7 +165,7 @@ class PayloadForceTorque(PayloadMonitor):
                         abs(rob_torque.vector.y) >= torque_y_threshold):
 
                     self.state = True
-                    print(f'HIT PLACING: X:{rob_force.vector.x};Z:{rob_force.vector.z};Y:{rob_torque.vector.y}')
+                    print(f'HIT PLACING!: X:{rob_force.vector.x};Z:{rob_force.vector.z};Y:{rob_torque.vector.y}')
                 else:
                     self.state = False
                     print(f'MISS PLACING!: X:{rob_force.vector.x};Z:{rob_force.vector.z};Y:{rob_torque.vector.y}')
@@ -196,12 +196,37 @@ class PayloadForceTorque(PayloadMonitor):
             # case for placing plates
             elif self.object_type == ObjectTypes.OT_Plate.value:
                 #  TODO: Add proper placing logic for Plate
-                print("IT JUST WORKS - Todd Howard, at some point")
+
+                force_x_threshold = 2.34
+                force_z_threshold = 1.0
+                torque_y_threshold = 0.45
+
+                if (abs(rob_force.vector.x) >= force_x_threshold and
+                        abs(rob_force.vector.z) >= force_z_threshold and
+                        abs(rob_torque.vector.y) >= torque_y_threshold):
+
+                    self.state = True
+                    print(f'HIT PLATE!: X:{rob_force.vector.x};Z:{rob_force.vector.z};Y:{rob_torque.vector.y}')
+                else:
+                    self.state = False
+                    print(f'MISS PLATE!: X:{rob_force.vector.x};Z:{rob_force.vector.z};Y:{rob_torque.vector.y}')
 
             # case for placing bowls
             elif self.object_type == ObjectTypes.OT_Bowl.value:
-                #  TODO: Add proper placing logic for Bowl
-                print("IT JUST WORKS - Todd Howard, at some point")
+
+                force_x_threshold = 2.34
+                force_z_threshold = 1.0
+                torque_y_threshold = 0.45
+
+                if (abs(rob_force.vector.x) >= force_x_threshold and
+                        abs(rob_force.vector.z) >= force_z_threshold and
+                        abs(rob_torque.vector.y) >= torque_y_threshold):
+
+                    self.state = True
+                    print(f'HIT BOWL!: X:{rob_force.vector.x};Z:{rob_force.vector.z};Y:{rob_torque.vector.y}')
+                else:
+                    self.state = False
+                    print(f'MISS BOWL!: X:{rob_force.vector.x};Z:{rob_force.vector.z};Y:{rob_torque.vector.y}')
 
             # if no valid object_type has been declared in method parameters
             else:
