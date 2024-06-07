@@ -18,7 +18,7 @@ from giskard_msgs.msg import MoveResult, CollisionEntry, MoveGoal, WorldResult
 from giskard_msgs.srv import DyeGroupResponse, GetGroupInfoResponse
 from giskardpy.data_types import goal_parameter
 from giskardpy.goals.realtime_goals import RealTimePointingPose
-from giskardpy.goals.suturo import Reaching, Placing, Retracting, Tilting, TakePose, OpenDoorGoal, MoveAroundDishwasher
+from giskardpy.goals.suturo import Reaching, Placing, Retracting, Tilting, TakePose, OpenDoorGoal, MoveAroundDoor
 from giskardpy.python_interface.python_interface import GiskardWrapper
 from giskardpy.suturo_types import GripperTypes
 from giskardpy.tasks.task import WEIGHT_ABOVE_CA, WEIGHT_BELOW_CA
@@ -1339,19 +1339,26 @@ class OldGiskardWrapper(GiskardWrapper):
     def set_hsrb_dishwasher_door_around(self,
                                         handle_name: str,
                                         root_link: str = 'map',
-                                        tip_link: str = 'hand_gripper_tool_frame'):
+                                        tip_link: str = 'hand_gripper_tool_frame',
+                                        door_hinge_frame_id: Optional[str] = None,
+                                        points_negative_to_positive: Optional[bool] = True):
         """
         HSRB specific avoid dishwasher door goal
 
-        :param handle_frame_id: Frame id of the door handle
+        :param handle_name: name of the door handle
         :param tip_link: robot link, that grasps the handle
         :param root_link: root link of the kinematic chain
+        :param door_hinge_frame_id: frame id of the door hinge
+        :param points_negative_to_positive: boolean to determine if points go from negative angle offset
+                                            to positive angle offset
         """
 
-        self.motion_goals.add_motion_goal(motion_goal_class=MoveAroundDishwasher.__name__,
+        self.motion_goals.add_motion_goal(motion_goal_class=MoveAroundDoor.__name__,
                                           handle_name=handle_name,
                                           root_link=root_link,
-                                          tip_link=tip_link)
+                                          tip_link=tip_link,
+                                          door_hinge_frame_id=door_hinge_frame_id,
+                                          points_negative_to_positive=points_negative_to_positive)
 
     def set_hsrb_align_to_push_door_goal(self,
                                          handle_name: str,

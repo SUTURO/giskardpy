@@ -1230,11 +1230,13 @@ class OpenDoorGoal(Goal):
         self.add_monitor(end_motion)
 
 
-class MoveAroundDishwasher(Goal):
+class MoveAroundDoor(Goal):
     def __init__(self,
                  handle_name: str,
                  root_link: str,
                  tip_link: str,
+                 door_hinge_frame_id: Optional[str] = None,
+                 points_negative_to_positive: Optional[bool] = True,
                  reference_linear_velocity: float = 0.1,
                  weight: float = WEIGHT_ABOVE_CA,
                  name: str = None,
@@ -1242,9 +1244,9 @@ class MoveAroundDishwasher(Goal):
                  hold_condition: cas.Expression = cas.FalseSymbol,
                  end_condition: cas.Expression = cas.FalseSymbol):
         """
-        Adds two Points to move around the door of the dishwasher
+        Adds three Points to move around a door
 
-        :param handle_frame_id: full frame id of the dishwasher door handle
+        :param handle_name: name of the dishwasher door handle
         :param root_link: root link of the kinematic chain
         :param tip_link: tip link of the kinematic chain
         :param reference_linear_velocity: m/s
@@ -1264,7 +1266,8 @@ class MoveAroundDishwasher(Goal):
         self.handle_frame_id = self.tip_link = god_map.world.search_for_link_name(handle_name)
 
         hinge_joint = god_map.world.get_movable_parent_joint(self.handle_frame_id)
-        door_hinge_frame_id = god_map.world.get_parent_link_of_link(self.handle_frame_id)
+        if door_hinge_frame_id is None:
+            door_hinge_frame_id = god_map.world.get_parent_link_of_link(self.handle_frame_id)
 
         self.tip_link = god_map.world.search_for_link_name(tip_link)
         self.root_link = god_map.world.search_for_link_name(root_link)
@@ -1282,9 +1285,15 @@ class MoveAroundDishwasher(Goal):
         # axis pointing in the direction of handle frame from door joint frame
         direction_axis = np.argmax(abs(temp_point))
 
-        multipliers = [(11 / 10, -0.7, 'down_short'),
-                       (7 / 5, -0.3, 'down_long'),
-                       (7 / 5, 0.4, 'up_long')]
+        if points_negative_to_positive:
+            multipliers = [(11 / 10, -0.7, 'down_short'),
+                           (7 / 5, -0.3, 'down_long'),
+                           (7 / 5, 0.4, 'up_long')]
+        else:
+            multipliers = [(11 / 10, 0.7, 'down_short'),
+                           (7 / 5, 0.3, 'down_long'),
+                           (7 / 5, -0.4, 'up_long')]
+
         root_P_top_chain = []
 
         for i, (axis_multi, angle_multi, goal_name) in enumerate(multipliers):
