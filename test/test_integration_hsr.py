@@ -672,9 +672,12 @@ class TestSUTURO:
         tip_grasp_axis.header.frame_id = door_setup.tip
         tip_grasp_axis.vector.y = 1
 
-        door_setup.set_align_to_push_door_goal(root_link=door_setup.default_root, tip_link=door_setup.tip,
-                                               door_object=hinge_name, door_handle=handle_name,
-                                               tip_gripper_axis=tip_grasp_axis)
+        door_setup.set_align_to_push_door_goal(root_link=door_setup.default_root,
+                                               tip_link=door_setup.tip,
+                                               door_object=hinge_name,
+                                               door_handle=handle_name,
+                                               tip_gripper_axis=tip_grasp_axis,
+                                               intermediate_point_scale=0.93)
 
         door_setup.execute(add_local_minimum_reached=True)
 
@@ -688,9 +691,8 @@ class TestSUTURO:
         door_setup.allow_collision(door_setup.default_env_name, door_setup.gripper_group)
         door_setup.plan_and_execute()
 
-        door_setup.set_open_container_goal(tip_link=door_setup.tip,
-                                           environment_link=hinge_name,
-                                           goal_joint_state=-1.5)
+        door_setup.set_close_container_goal(tip_link=door_setup.tip,
+                                            environment_link=hinge_name)
 
         door_setup.allow_collision(door_setup.default_env_name, door_setup.robot_name)
         door_setup.execute()
