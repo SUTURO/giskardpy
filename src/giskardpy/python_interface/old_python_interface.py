@@ -1524,3 +1524,24 @@ class OldGiskardWrapper(GiskardWrapper):
         self.monitors.add_cancel_motion(local_min, "", GiskardError.FORCE_TORQUE_MONITOR_GRASPING_MISSED_OBJECT)
         self.monitors.add_end_motion(start_condition=f'{force_torque_trigger} or {local_min}')
         self.monitors.add_max_trajectory_length(100)
+
+    def set_adaptive_pouring_goal(self,
+                                  root_link: str,
+                                  tip_link: str,
+                                  start_pose: PoseStamped,
+                                  tilt_angle: float,
+                                  tilt_axis: Vector3Stamped,
+                                  with_feedback: bool = True):
+        """
+        moves the tip_link to start_pose then tilts tip_link tip_angle amount around the tilt_axis.
+        If with_feedback is True, then after tilting this goal will listen to the String topic /reasoner/concluded_behaviors
+        and move tip_link in accordance with the motion primitives that are contained in the topic.
+        The primitives are: increase, decrease moveForward, moveBack, moveLeft, moveRight, moveUp, moveDown, anticlockwise, clockwise.
+        The goal will then finish after multiple messages containing {} are received.
+        """
+        self.motion_goals.add_adaptive_pouring(root_link=root_link,
+                                               tip_link=tip_link,
+                                               start_pose=start_pose,
+                                               tilt_angle=tilt_angle,
+                                               tilt_axis=tilt_axis,
+                                               with_feedback=with_feedback)

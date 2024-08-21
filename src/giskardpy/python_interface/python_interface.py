@@ -48,6 +48,7 @@ from giskardpy.tasks.task import WEIGHT_ABOVE_CA, WEIGHT_BELOW_CA
 from giskardpy.tree.control_modes import ControlModes
 from giskardpy.utils.utils import kwargs_to_json, get_all_classes_in_package
 from std_srvs.srv import Trigger, TriggerResponse, TriggerRequest
+from giskardpy.goals.adaptive_goals import PouringAdaptiveTilt
 
 
 class WorldWrapper:
@@ -1738,6 +1739,28 @@ class MotionGoalWrapper:
                                     tip_link='head_center_camera_frame',
                                     topic_name='human_pose',
                                     pointing_axis=tip_V_pointing_axis)
+
+    def add_adaptive_pouring(self,
+                             root_link: str,
+                             tip_link: str,
+                             start_pose: PoseStamped,
+                             tilt_angle: float,
+                             tilt_axis: Vector3Stamped,
+                             with_feedback: bool = True):
+        """
+        moves the tip_link to start_pose then tilts tip_link tip_angle amount around the tilt_axis.
+        If with_feedback is True, then after tilting this goal will listen to the String topic /reasoner/concluded_behaviors
+        and move tip_link in accordance with the motion primitives that are contained in the topic.
+        The primitives are: increase, decrease moveForward, moveBack, moveLeft, moveRight, moveUp, moveDown, anticlockwise, clockwise.
+        The goal will then finish after multiple messages containing {} are received.
+        """
+        self.add_motion_goal(motion_goal_class=PouringAdaptiveTilt.__name__,
+                             root=root_link,
+                             tip=tip_link,
+                             pouring_pose=start_pose,
+                             tilt_angle=tilt_angle,
+                             tilt_axis=tilt_axis,
+                             with_feedback=with_feedback)
 
 
 class MonitorWrapper:
