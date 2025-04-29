@@ -1209,9 +1209,9 @@ class MoveAroundDishwasher(Goal):
         # axis pointing in the direction of handle frame from door joint frame
         direction_axis = np.argmax(abs(temp_point[0:3]))
 
-        multipliers = [#(11 / 10, -0.7, 'down_short'),
-                       (7 / 5, -0.6, 'down_long'),
-                       (15 / 10, 0.5, 'up_long')]
+        multipliers = [(11 / 10, -0.7, 'down_short'),
+                       (7 / 5, -0.3, 'down_long'),
+                       (7 / 5, 0.4, 'up_long')]
         root_P_top_chain = []
 
         for i, (axis_multi, angle_multi, goal_name) in enumerate(multipliers):
