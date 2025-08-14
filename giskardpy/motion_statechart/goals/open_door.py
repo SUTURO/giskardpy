@@ -1,8 +1,11 @@
+from typing import Optional
+
 from giskardpy import casadi_wrapper as cas
 from giskardpy.data_types.data_types import PrefixName
 from giskardpy.god_map import god_map
 from giskardpy.motion_statechart.goals.goal import Goal
 from giskardpy.motion_statechart.goals.open_close import Open
+from giskardpy.motion_statechart.goals.unlatch_door import UnlatchDoor
 from giskardpy.motion_statechart.monitors.joint_monitors import JointGoalReached
 from giskardpy.motion_statechart.tasks.align_planes import AlignPlanes
 from giskardpy.motion_statechart.tasks.joint_tasks import JointPositionList
@@ -13,8 +16,8 @@ class OpenDoorGoal(Goal):
     def __init__(self,
                  tip_link: PrefixName,
                  handle_name: PrefixName,
-                 handle_limit: float,
                  hinge_limit: float,
+                 handle_limit: Optional[float] = None,
                  root_link: PrefixName = None,
                  tip_normal: cas.Vector3 = None,
                  goal_normal: cas.Vector3 = None,
@@ -45,41 +48,27 @@ class OpenDoorGoal(Goal):
             root_link = god_map.world.search_for_link_name('map')
         super().__init__(name=name)
 
-        handle_name = handle_name
         handle_frame_id = god_map.world.get_movable_parent_joint(handle_name)
         link_id = god_map.world.get_parent_link_of_joint(handle_frame_id)
         door_hinge_id = god_map.world.get_movable_parent_joint(link_id)
 
-        _, max_limit_handle = god_map.world.compute_joint_limits(handle_frame_id, 0)
         min_limit_hinge, max_limit_hinge = god_map.world.compute_joint_limits(door_hinge_id, 0)
-
-        if handle_limit is None:
-            limit_handle = max_limit_handle
-        else:
-            limit_handle = min(max_limit_handle, handle_limit)
 
         if hinge_limit is None:
             limit_hinge = min_limit_hinge
         else:
             limit_hinge = max(min_limit_hinge, hinge_limit)
 
-        handle_state = {handle_frame_id: limit_handle}
-        handle_state_monitor = JointGoalReached(goal_state=handle_state,
-                                                threshold=0.005,
-                                                name=f'{name}_handle_joint_monitor')
-        self.add_monitor(handle_state_monitor)
-
-        open_goal = Open(tip_link=tip_link,
-                         environment_link=handle_name,
-                         goal_joint_state=limit_handle,
-                         name='OpenHandle',
-                         max_velocity=0.3)
-        self.add_goal(open_goal)
+        unlatch_door = UnlatchDoor(tip_link=tip_link,
+                                   handle_name=handle_name,
+                                   handle_limit=handle_limit)
+        self.end_condition = unlatch_door
+        self.add_goal(unlatch_door)
 
         jpl = JointPositionList(goal_state={door_hinge_id: max_limit_hinge},
                                 weight=WEIGHT_ABOVE_CA,
                                 name='DoorHinge')
-        jpl.end_condition = handle_state_monitor
+        jpl.end_condition = unlatch_door
         self.add_task(jpl)
 
         apl = AlignPlanes(root_link=root_link,
@@ -87,7 +76,7 @@ class OpenDoorGoal(Goal):
                           goal_normal=goal_normal,
                           tip_normal=tip_normal,
                           name='AlignBaseWithDoor')
-        apl.start_condition = handle_state_monitor
+        apl.start_condition = unlatch_door
         self.add_task(apl)
 
         open_goal2 = Open(tip_link=tip_link,
@@ -95,12 +84,12 @@ class OpenDoorGoal(Goal):
                           goal_joint_state=limit_hinge,
                           name='OpenHinge',
                           max_velocity=0.5)
-        open_goal2.start_condition = handle_state_monitor
+        open_goal2.start_condition = unlatch_door
         self.add_goal(open_goal2)
 
         goal_state = {door_hinge_id: limit_hinge}
         hinge_state_monitor = JointGoalReached(name='HingeMonitor', goal_state=goal_state)
-        hinge_state_monitor.start_condition = handle_state_monitor
+        hinge_state_monitor.start_condition = unlatch_door
         self.add_monitor(hinge_state_monitor)
 
         self.observation_expression = hinge_state_monitor.observation_expression
