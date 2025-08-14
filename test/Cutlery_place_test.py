@@ -1,11 +1,10 @@
 import rospy
 from geometry_msgs.msg import PoseStamped, Quaternion
 
-import giskardpy.casadi_wrapper
 from giskardpy.suturo_types import GripperTypes
 from manipulation_msgs.msg import ContextAlignVertical
 
-from giskardpy.goals.suturo import GraspObject, ContextTypes, ContextActionModes
+from giskardpy.motion_statechart.goals.suturo import ContextTypes, ContextActionModes
 from giskardpy.python_interface.old_python_interface import OldGiskardWrapper
 from giskardpy.utils import tfwrapper
 
