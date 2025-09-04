@@ -14,6 +14,14 @@ class UnlatchDoor(Goal):
                  handle_name: PrefixName,
                  name: Optional[str] = None,
                  handle_limit: Optional[float] = None):
+        """
+        Unlatches given door by handle_name
+
+        :param tip_link: tip_link of the kin chain
+        :param handle_name: environment link to open
+        :param name: Name of the goal
+        :param handle_limit: specific handle turn limit for Open-Goal if max is not intended
+        """
         if name is None:
             name = UnlatchDoor.__name__
         super().__init__(name=name)
